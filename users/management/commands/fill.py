@@ -10,8 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Очистить содержимое моделей перед созданием новых объектов
-        Payment.objects.all().delete()
-        # User.objects.all().delete()
+        #Payment.objects.all().delete()
+        User.objects.all().delete()
 
         # Создаем пользователей, курсы и уроки (если они еще не созданы)
         user1, created = User.objects.get_or_create(email='test1@sky.pro')
