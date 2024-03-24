@@ -2,10 +2,10 @@ from rest_framework import viewsets, generics
 from rest_framework.permissions import IsAuthenticated
 
 from training.models import Course, Lesson, Subscription
+from training.pagination import CourseAndLessonPagination
 from training.permissions import IsModerator, IsOwner
 from training.serializers import CourseSerializers, LessonSerializers, SubscriptionSerializer
-from users.models import Payment
-from users.serializers import PaymentSerializer
+
 
 
 # Create your views here.
@@ -41,7 +41,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
 class LessonListAPIView(generics.ListAPIView):
     serializer_class = LessonSerializers
     queryset = Lesson.objects.all()
-    permission_classes = [IsAuthenticated, IsModerator | IsOwner]
+    pagination_class = CourseAndLessonPagination
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):

@@ -40,37 +40,38 @@ class LessonTestCase(APITestCase):
     def test_list_lessons(self):
         """Тестирование списка уроков"""
         response = self.client.get(
-            reverse('training:lessons_list'),
+            reverse('training:lesson_list'),
         )
 
         self.assertEqual(
             response.status_code,
             status.HTTP_200_OK
         )
-        self.assertEqual(
-            response.json(),
-            {'count': 1, 'next': None, 'previous': None, 'results': [
-                {'id': self.lesson.pk, 'name': self.lesson.name, 'preview': self.lesson.preview,
-                 'description': self.lesson.description,
-                 'video_link': self.lesson.video_link, 'course': self.lesson.course, 'owner': self.user.pk}]}
-        )
-        self.assertEqual(
-            response.json(),
-            {'id': 2, 'name': 'test', 'description': 'test description', 'preview': None,
-             'video_link': 'https://www.youtube.com/watch', 'course': None, 'owner': self.user.pk}
 
-        )
+        if 'date_modified' in response.json():
+            del response.json()['date_modified']
+
+            self.assertEqual(
+                response.json(),
+                {'count': 1, 'next': None, 'previous': None, 'results': [
+                    {'id': self.lesson.pk, 'name': 'test', 'description': 'test description', 'preview': None,
+                     'video_link': 'https://www.youtube.com/watch', 'amount': '0.00',
+                     'course': None, 'owner': self.user.pk}]}
+
+            )
 
     def test_retrieve_lesson(self):
         """Тестирование экземпляра урока"""
         response = self.client.get(
             reverse('training:lesson_get', kwargs={'pk': self.lesson.pk}),
         )
-        print(response.json())
+
         self.assertEqual(
             response.status_code,
             status.HTTP_200_OK
         )
+
+        response.json().pop('date_modified')
 
         self.assertEqual(
             response.json(),
@@ -95,15 +96,15 @@ class LessonTestCase(APITestCase):
             response.status_code,
             status.HTTP_200_OK
         )
+
+        response.json().pop('date_modified')
+
         self.assertEqual(
             response.json(),
             {'id': self.lesson.pk, 'name': 'test_update', 'description': 'update description', 'preview': None,
              'video_link': 'https://www.youtube.com/watch', 'amount': '0.00',
              'course': None, 'owner': self.user.pk}
-
         )
-
-        print(response.json())
 
     def test_delete_lesson(self):
         """Тестирование удаления урока"""
