@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'django_filters',
+    'drf_yasg',
+
     'users',
     'training',
 ]
@@ -144,3 +146,5 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')

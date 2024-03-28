@@ -72,6 +72,7 @@ class SubscriptionCreateAPIView(generics.CreateAPIView):
         course_pk = self.kwargs.get('pk')
         new_sub.course = Course.objects.get(pk=course_pk)
         new_sub.save()
+        queryset = Subscription.objects.all()
 
 
 class SubscriptionDestroyAPIView(generics.DestroyAPIView):
