@@ -1,9 +1,18 @@
 import stripe
+from django.core.mail import send_mail
 
-from config.settings import STRIPE_API_KEY
+from config.settings import STRIPE_API_KEY, EMAIL_HOST_USER
 
 API_KEY = STRIPE_API_KEY
 
+def send_payment_link(url, email):
+    send_mail(
+        subject='Оплата курса',
+        message=f'Ссылка для оплаты курса: {url}',
+        from_email=EMAIL_HOST_USER,
+        recipient_list=[email]
+
+    )
 
 def get_session(payment):
     """Функция возвращает сессию для оплаты"""

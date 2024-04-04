@@ -9,7 +9,8 @@ class Subscription(models.Model):
     """Модедь подписки"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name='Пользователь',
                              related_name='subscription')
-    course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='Курс', related_name='subscription')
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, verbose_name='Курс', related_name='subscribe')
+    is_subscribe = models.BooleanField(default=False, verbose_name="Подписка")
 
     def __str__(self):
         return f'{self.user} - {self.course}'
@@ -27,14 +28,20 @@ class Course(models.Model):
     description = models.TextField(verbose_name='Описание')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                               verbose_name='Автор курса', **NULLABLE)
+    price = models.PositiveIntegerField(null=True, verbose_name='Цена')
 
     def __str__(self):
-        return f'{self.name}'
+        return self.name
+
+    def get_subscribed_users(self):
+        subscription_user = [subscription.user for subscription in self.subscribe.all() if
+                             subscription.user is not None]
+        return subscription_user
 
     class Meta:
-        """Класс отображения метаданных"""
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
+
 
 
 class Lesson(models.Model):

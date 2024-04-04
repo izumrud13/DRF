@@ -1,11 +1,14 @@
-from rest_framework import viewsets, generics
+from django.http import Http404
+from rest_framework import viewsets, generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from training.models import Course, Lesson, Subscription
 from training.pagination import CourseAndLessonPagination
 from training.permissions import IsModerator, IsOwner
 from training.serializers import CourseSerializers, LessonSerializers, SubscriptionSerializer
-
+from users.serializers import UserSerializer
 
 
 # Create your views here.
@@ -78,3 +81,40 @@ class SubscriptionCreateAPIView(generics.CreateAPIView):
 class SubscriptionDestroyAPIView(generics.DestroyAPIView):
     """Эндпоинт для удаления подписки"""
     queryset = Subscription.objects.all()
+
+
+class SubscriptionView(APIView):
+    queryset = Course.objects.all()
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubscriptionSerializer
+
+    def post(self, request):
+        user = self.request.user
+        user_serializer = UserSerializer(user)
+        user_data = user_serializer.data
+
+        name = request.data.get('name')
+
+        if name is None:
+            return Response({"message": "name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            course = Course.objects.get(name=name)
+        except Course.DoesNotExist:
+            raise Http404('Course not found')
+
+        subs_item = Subscription.objects.filter(user=user, course=course)
+
+        if subs_item.exists():
+            subs_item.delete()
+            message = 'подписка удалена'
+        else:
+            Subscription.objects.create(user=user, course=course)
+            message = 'подписка добавлена'
+
+        return Response({"message": message, 'user': user_data})
+
+    def perform_create(self, serializer):
+        new_subscription = serializer.save()
+        new_subscription.user = self.request.user
+        new_subscription.save()
